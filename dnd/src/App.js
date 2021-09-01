@@ -1,91 +1,73 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import './App.css';
+import { v4 as uuidv4 } from 'uuid';
+import SimpleDnd from './components/SimpleDnd/SimpleDnd';
+import Dnd2Lists from './components/Dnd2Lists/Dnd2Lists';
 
-const boxesItems = [
-  {
-    id: '1',
-    name: '1',
-  },
-  {
-    id: '2',
-    name: '2',
-  },
-  {
-    id: '3',
-    name: '3',
-  },
-  {
-    id: '4',
-    name: '4',
-  },
-  {
-    id: '5',
-    name: '5',
-  },
-  {
-    id: '6',
-    name: '6',
-  },
-  {
-    id: '7',
-    name: '7',
-  },
-  {
-    id: '8',
-    name: '8',
-  },
-  {
-    id: '9',
-    name: '9',
-  },
-  {
-    id: '10',
-    name: '10',
-  },
-  
-]
+const itemsForColumn = [
+  { id: uuidv4(), content: "1" },
+  { id: uuidv4(), content: "2" },
+  { id: uuidv4(), content: "3" },
+  { id: uuidv4(), content: "4" },
+  { id: uuidv4(), content: "5" }
+];
 
+const columnsObj = {
+  [uuidv4()]: {
+    name: "First Column",
+    items: itemsForColumn
+  },
+  [uuidv4()]: {
+    name: "Second Column",
+    items: []
+  },
+};
+
+const onDragEnd = (result, columns, setColumns) => {
+  if (!result.destination) return;
+  const { source, destination } = result;
+
+  if (source.droppableId !== destination.droppableId) {
+    const sourceColumn = columns[source.droppableId];
+    const destColumn = columns[destination.droppableId];
+    const sourceItems = [...sourceColumn.items];
+    const destItems = [...destColumn.items];
+    const [removed] = sourceItems.splice(source.index, 1);
+    destItems.splice(destination.index, 0, removed);
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...sourceColumn,
+        items: sourceItems
+      },
+      [destination.droppableId]: {
+        ...destColumn,
+        items: destItems
+      }
+    });
+  } else {
+    const column = columns[source.droppableId];
+    const copiedItems = [...column.items];
+    const [removed] = copiedItems.splice(source.index, 1);
+    copiedItems.splice(destination.index, 0, removed);
+    setColumns({
+      ...columns,
+      [source.droppableId]: {
+        ...column,
+        items: copiedItems
+      }
+    });
+  }
+};
 
 function App() {
-  const [boxes, setBoxes] = useState(boxesItems);
-
-  function handleOnDragEnd(result) {
-    if (!result.destination) return;
-
-    const items = Array.from(boxes);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setBoxes(items);
-  }
-
-  return (
-    <div className="App">
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          <Droppable droppableId="boxes">
-            {(provided) => (
-              <ul className="characters" {...provided.droppableProps} ref={provided.innerRef}>
-                {boxes.map(({id, name}, index) => {
-                  return (
-                    <Draggable key={id} draggableId={id} index={index}>
-                      {(provided) => (
-                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                          <p>
-                            { name }
-                          </p>
-                        </li>
-                      )}
-                    </Draggable>
-                  );
-                })}
-                
-                {provided.placeholder}
-              </ul>
-            )}
-          </Droppable>
-        </DragDropContext>
-    </div>
-  );
+    return (
+        <div className="App">
+            <SimpleDnd></SimpleDnd>
+            <Dnd2Lists></Dnd2Lists>
+        </div>  
+     );
 }
 
 export default App;
