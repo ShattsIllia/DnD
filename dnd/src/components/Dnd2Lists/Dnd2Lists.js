@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { v4 as uuidv4 } from 'uuid';
+import './Dnd2Lists.css'
 
 const itemsForColumn = [
     { id: uuidv4(), content: "1" },
@@ -61,7 +62,7 @@ const itemsForColumn = [
 const Dnd2Lists = () => {
     const [columns, setColumns] = useState(columnsObj);
     return (
-        <div style={{ display: "flex", justifyContent: "space-around", height: "100%" }}>
+        <div className='wrapper'>
             <DragDropContext onDragEnd={result => onDragEnd(result, columns, setColumns)}>
                 {Object.entries(columns).map(([columnId, column], index) => {
                 return (
